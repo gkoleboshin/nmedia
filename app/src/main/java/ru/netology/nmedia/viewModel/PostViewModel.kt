@@ -1,9 +1,7 @@
 package ru.netology.nmedia.viewmodel
 
-import androidx.constraintlayout.widget.Group
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.map
 import ru.netology.nmedia.adapter.PostInteractionListiner
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.repository.PostRepository
@@ -12,19 +10,21 @@ import ru.netology.nmedia.repository.PostRepositoryInMemoryImpl
 class PostViewModel : ViewModel(), PostInteractionListiner {
     private val repository: PostRepository = PostRepositoryInMemoryImpl()
     val data by repository::data
+    val cancelEditPost = MutableLiveData<Boolean>(false)
     val editPost = MutableLiveData<Post?>()
     fun onSaveButtonClicked(postContent: String) {
         val updatedPost = editPost.value?.copy(
             content = postContent
         ) ?: Post(
             id = 0L,
-            author = "",
+            author = "Me",
             content = postContent,
-            published = "",
+            published = "now",
             likedByMe = false
         )
         repository.save(updatedPost)
         this.editPost.value = null
+
     }
 
     // region PostInteractionListiner implmentation
@@ -43,8 +43,12 @@ class PostViewModel : ViewModel(), PostInteractionListiner {
 
     override fun onEdit(post: Post) {
         editPost.value = post
+        onCancel()
+    }
+
+    override fun onCancel() {
+        cancelEditPost.value = !cancelEditPost.value!!
     }
 
     // endregion PostInteractionListiner implmentation
-
 }

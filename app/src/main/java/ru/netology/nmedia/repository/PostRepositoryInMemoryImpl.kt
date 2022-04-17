@@ -1,5 +1,6 @@
 package ru.netology.nmedia.repository
 
+import android.view.View
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import ru.netology.nmedia.dto.Post
@@ -9,6 +10,7 @@ class PostRepositoryInMemoryImpl : PostRepository {
     private var nextId = 1L
 
     override val data: MutableLiveData<List<Post>>
+
 
     init {
         val posts = listOf(
@@ -79,6 +81,7 @@ class PostRepositoryInMemoryImpl : PostRepository {
         data = MutableLiveData(posts)
     }
 
+
     private val posts
         get() = checkNotNull(data.value) {
             "Live data should be initialized with post"
@@ -93,6 +96,9 @@ class PostRepositoryInMemoryImpl : PostRepository {
         }
     }
 
+
+
+
     override fun shareById(id: Long) {
         data.value = posts.map {
             if (it.id != id) it else it.copy(shares = it.shares + 1)
@@ -104,6 +110,8 @@ class PostRepositoryInMemoryImpl : PostRepository {
     }
 
     override fun save(post: Post) = if (post.id == 0L) insert(post) else update(post)
+
+
 
     private fun insert(post: Post) {
         val indentifiedPost = post.copy(id = nextId++)
