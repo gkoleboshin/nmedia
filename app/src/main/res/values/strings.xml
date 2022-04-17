@@ -6,4 +6,7 @@
     <string name="description_post_like">Post like</string>
     <string name="description_post_share">Post share</string>
     <string name="description_post_views">Post views</string>
+    <string name="remove_post_action">Remove</string>
+    <string name="post_content_hint">Post content</string>
+    <string name="edit_post_action">Edit</string>
 </resources>
