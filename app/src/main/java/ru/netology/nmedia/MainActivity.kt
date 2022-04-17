@@ -19,7 +19,6 @@ class MainActivity : AppCompatActivity() {
         val adapter = PostsAdapter(viewModel)
         binding.list.adapter = adapter
         viewModel.cancelEditPost.observe(this){
-            print(it)
             binding.groupIsNotVisible.visibility = if (!it) View.INVISIBLE else View.VISIBLE
         }
         viewModel.data.observe(this) { posts ->
