@@ -7,4 +7,7 @@
     <string name="app_name">Нмедиа</string>
     <string name="description_post_share">Поделиться постом</string>
     <string name="description_post_views">Количество просмотров поста</string>
+    <string name="remove_post_action">Удалить</string>
+    <string name="post_content_hint">Содержание поста</string>
+    <string name="edit_post_action">Изменить</string>
 </resources>
