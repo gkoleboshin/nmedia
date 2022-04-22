@@ -23,8 +23,7 @@ class NewPostActivity : AppCompatActivity() {
                 MainActivity.ResultConrect
             ){editPostContent->
                 editPostContent?:return@registerForActivityResult
-                requestFocus()
-                setText(editPostContent)
+                    text=toEditable(setText(editPostContent).toString())
             }
         }
 
@@ -44,6 +43,8 @@ class NewPostActivity : AppCompatActivity() {
         }
         finish()
     }
+    fun toEditable(content:String):Editable = Editable.Factory.getInstance().newEditable(content)
+
 
     object ResultConrect : ActivityResultContract<Unit, String?>() {
 

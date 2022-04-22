@@ -1,5 +1,7 @@
 package ru.netology.nmedia.dto
 
+import java.net.URL
+
 data class Post(
     val id: Long,
     val author: String,
@@ -8,5 +10,6 @@ data class Post(
     val likedByMe: Boolean,
     var likes: Int = 0,
     var shares: Int = 0,
-    var views:Int = 0
+    var views:Int = 0,
+    val video: String = ""
 )

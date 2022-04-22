@@ -1,6 +1,5 @@
 package ru.netology.nmedia.viewmodel
 
-import androidx.activity.result.launch
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import ru.netology.nmedia.adapter.PostInteractionListiner

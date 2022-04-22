@@ -37,9 +37,7 @@ class MainActivity : AppCompatActivity() {
         viewModel.editPost.observe(this) { post: Post? ->
             val content = post?.content ?: ""
             val intent:Intent  = Intent(this,NewPostActivity::class.java)
-            intent.putExtra()
-
-
+            intent.putExtra(NEW_POST_CONTENT_KEY,content)
             startActivity(intent)
         }
 
