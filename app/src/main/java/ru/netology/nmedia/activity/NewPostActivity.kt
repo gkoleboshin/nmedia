@@ -16,15 +16,16 @@ class NewPostActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         val binding = NewPostActivityBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
+        var editContentPost:String
+        registerForActivityResult(
+            MainActivity.ResultConrect
+        ){editPostContent->
+          editPostContent?:return@registerForActivityResult
+          editContentPost=editPostContent
+        }
 
         with(binding.edit){
-            registerForActivityResult(
-                MainActivity.ResultConrect
-            ){editPostContent->
-                editPostContent?:return@registerForActivityResult
-                text = setText(editPostContent)
-            }
+
         }
 
         binding.ok.setOnClickListener{
