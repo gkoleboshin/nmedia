@@ -37,9 +37,7 @@ class MainActivity : AppCompatActivity() {
         viewModel.editPost.observe(this) { post: Post? ->
             val content = post?.content ?: ""
             val intent:Intent  = Intent(this,NewPostActivity::class.java)
-            intent.putExtra()
-
-
+            intent.putExtra(EDIT_POST_CONTENT_KEY,content)
             startActivity(intent)
         }
 
@@ -66,11 +64,11 @@ class MainActivity : AppCompatActivity() {
         override fun parseResult(resultCode: Int, intent: Intent?): String? =
             intent?.takeIf {
                 resultCode == Activity.RESULT_OK
-            }?.getStringExtra(NEW_POST_CONTENT_KEY)
+            }?.getStringExtra(EDIT_POST_CONTENT_KEY)
 
     }
 
     private companion object {
-        const val NEW_POST_CONTENT_KEY = "EditPostContent"
+        const val EDIT_POST_CONTENT_KEY = "EditPostContent"
     }
 }

@@ -23,8 +23,7 @@ class NewPostActivity : AppCompatActivity() {
                 MainActivity.ResultConrect
             ){editPostContent->
                 editPostContent?:return@registerForActivityResult
-                requestFocus()
-                setText(editPostContent)
+                text = setText(editPostContent)
             }
         }
 
@@ -33,6 +32,7 @@ class NewPostActivity : AppCompatActivity() {
         }
 
     }
+
     private fun onOkButtonClick(text:Editable){
         val intent = Intent()
         if (text.isBlank()){
