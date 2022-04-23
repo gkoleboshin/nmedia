@@ -28,17 +28,13 @@ class MainActivity : AppCompatActivity() {
         viewModel.data.observe(this) { posts ->
             adapter.submitList(posts)
         }
-        val newPostLauncher = registerForActivityResult(
-            NewPostActivity.ResultConrect
-        ){newPostContent->
-            newPostContent?:return@registerForActivityResult
-            viewModel.onSaveButtonClicked(newPostContent)
-        }
+
         viewModel.editPost.observe(this) { post: Post? ->
             val content = post?.content ?: ""
             val intent:Intent  = Intent(this,NewPostActivity::class.java)
             intent.putExtra(EDIT_POST_CONTENT_KEY,content)
             startActivity(intent)
+            viewModel.onSaveButtonClicked(addContentText())
         }
 
         viewModel.shareEvent.observe(this) { postContent ->
@@ -53,22 +49,23 @@ class MainActivity : AppCompatActivity() {
         }
 
 
-        binding.fab.setOnClickListener { newPostLauncher.launch()}
+        binding.fab.setOnClickListener {
+            startActivity(intent)
+        }
+
+
 
     }
-    object ResultConrect : ActivityResultContract<Unit, String?>() {
 
-        override fun createIntent(context: Context, input: Unit): Intent =
-            Intent(context, MainActivity::class.java)
-
-        override fun parseResult(resultCode: Int, intent: Intent?): String? =
-            intent?.takeIf {
-                resultCode == Activity.RESULT_OK
-            }?.getStringExtra(EDIT_POST_CONTENT_KEY)
-
+    private fun addContentText():String {
+        val intentGet:Intent = getIntent()
+        val newPostContent = intent.getStringExtra(EDIT_POST_CONTENT_KEY)
+        if (newPostContent!=null) return newPostContent else return ""
     }
+
 
     private companion object {
-        const val EDIT_POST_CONTENT_KEY = "EditPostContent"
+        const val NEW_POST_CONTENT_KEY = "NewPostContent"
+        const val EDIT_POST_CONTENT_KEY ="EditPostContent"
     }
 }
