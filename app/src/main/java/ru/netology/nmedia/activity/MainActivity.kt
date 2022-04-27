@@ -1,19 +1,14 @@
 package ru.netology.nmedia.activity
 
-import android.app.Activity
-import android.content.Context
+import android.content.ActivityNotFoundException
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
-import android.view.View
-import androidx.activity.result.contract.ActivityResultContract
-import androidx.activity.result.launch
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import ru.netology.nmedia.R
 import ru.netology.nmedia.adapter.PostsAdapter
 import ru.netology.nmedia.databinding.ActivityMainBinding
-import ru.netology.nmedia.dto.Post
-import ru.netology.nmedia.util.hideKeyboard
 import ru.netology.nmedia.viewmodel.PostViewModel
 
 class MainActivity : AppCompatActivity() {
@@ -28,15 +23,28 @@ class MainActivity : AppCompatActivity() {
         viewModel.data.observe(this) { posts ->
             adapter.submitList(posts)
         }
-        val getMessage = registerForActivityResult(EditMessageResualtContract()){
+        val getMessage = registerForActivityResult(EditMessageResualtContract()) {
             if (it != null) {
                 viewModel.onSaveButtonClicked(it)
             }
         }
-        viewModel.editPost.observe(this){post->
-            if (post!=null){
+        viewModel.editPost.observe(this) { post ->
+            if (post != null) {
                 val contentPost = post.content
                 getMessage.launch(contentPost)
+            }
+        }
+
+        viewModel.videoUrl.observe(this) { id ->
+            val appIntent = Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube:" + id))
+            val webIntent = Intent(
+                Intent.ACTION_VIEW,
+                Uri.parse("http://www.youtube.com/watch?v=" + id)
+            )
+            try {
+               startActivity(appIntent)
+            } catch (ex: ActivityNotFoundException) {
+                startActivity(webIntent)
             }
         }
 

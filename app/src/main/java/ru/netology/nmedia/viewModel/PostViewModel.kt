@@ -1,6 +1,6 @@
 package ru.netology.nmedia.viewmodel
 
-import androidx.activity.result.launch
+
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import ru.netology.nmedia.adapter.PostInteractionListiner
@@ -14,6 +14,7 @@ class PostViewModel : ViewModel(), PostInteractionListiner {
     val data by repository::data
     val cancelEditPost = MutableLiveData<Boolean>(false)
     val editPost = MutableLiveData<Post?>()
+    val videoUrl = MutableLiveData<String>()
     val shareEvent = SingleLiveEvent<String>()
 
     fun onSaveButtonClicked(postContent: String) {
@@ -38,7 +39,7 @@ class PostViewModel : ViewModel(), PostInteractionListiner {
     }
 
     override fun onShare(post: Post) {
-        shareEvent.value =post.content
+        shareEvent.value = post.content
         repository.shareById(post.id)
     }
 
@@ -52,6 +53,11 @@ class PostViewModel : ViewModel(), PostInteractionListiner {
 
     override fun onCancel() {
         cancelEditPost.value = !cancelEditPost.value!!
+    }
+
+    override fun onPlayVideo(post: Post) {
+        videoUrl.value = post.contentVideo
+
     }
 
     // endregion PostInteractionListiner implmentation

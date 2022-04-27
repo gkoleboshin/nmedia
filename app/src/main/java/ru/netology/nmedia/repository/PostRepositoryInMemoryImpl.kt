@@ -1,7 +1,5 @@
 package ru.netology.nmedia.repository
 
-import android.view.View
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import ru.netology.nmedia.dto.Post
 
@@ -18,6 +16,7 @@ class PostRepositoryInMemoryImpl : PostRepository {
                 id = 9,
                 author = "Нетология. Университет интернет-профессий будущего",
                 content = "Освоение новой профессии — это не только открывающиеся возможности и перспективы, но и настоящий вызов самому себе. Приходится выходить из зоны комфорта и перестраивать привычный образ жизни: менять распорядок дня, искать время для занятий, быть готовым к возможным неудачам в начале пути. В блоге рассказали, как избежать стресса на курсах профпереподготовки → http://netolo.gy/fPD",
+                contentVideo = "WhWc3b3KhnY",
                 published = "23 сентября в 10:12",
                 likedByMe = false
             ),
@@ -76,6 +75,7 @@ class PostRepositoryInMemoryImpl : PostRepository {
                 content = "Привет, это новая Нетология! Когда-то Нетология начиналась с интенсивов по онлайн-маркетингу. Затем появились курсы по дизайну, разработке, аналитике и управлению. Мы растём сами и помогаем расти студентам: от новичков до уверенных профессионалов. Но самое важное остаётся с нами: мы верим, что в каждом уже есть сила, которая заставляет хотеть больше, целиться выше, бежать быстрее. Наша миссия — помочь встать на путь роста и начать цепочку перемен → http://netolo.gy/fyb",
                 published = "21 мая в 18:36",
                 likedByMe = false
+
             ),
         )
         data = MutableLiveData(posts)
