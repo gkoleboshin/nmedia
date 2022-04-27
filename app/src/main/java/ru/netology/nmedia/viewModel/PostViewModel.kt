@@ -1,16 +1,19 @@
 package ru.netology.nmedia.viewmodel
 
 
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import ru.netology.nmedia.adapter.PostInteractionListiner
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.repository.PostRepository
-import ru.netology.nmedia.repository.PostRepositoryInMemoryImpl
+import ru.netology.nmedia.repository.PostRepositoryFileImpl
+import ru.netology.nmedia.repository.PostRepositorySharedPrefsImpl
 import ru.netology.nmedia.util.SingleLiveEvent
 
-class PostViewModel : ViewModel(), PostInteractionListiner {
-    private val repository: PostRepository = PostRepositoryInMemoryImpl()
+class PostViewModel(
+    application: Application):AndroidViewModel(application), PostInteractionListiner {
+    private val repository: PostRepository = PostRepositoryFileImpl(application)
     val data by repository::data
     val cancelEditPost = MutableLiveData<Boolean>(false)
     val editPost = MutableLiveData<Post?>()
