@@ -17,4 +17,6 @@
     <string name="description_post_views">Просмотров поста</string>
     <string name="remove_post_action">Удалить пост</string>
     <string name="edit_post_action">Изменить пост</string>
+    <string name="description_post_video_play">Воспроизвести видео</string>
+    <string name="description_post_video_content">Видео контент</string> />
 </resources>
