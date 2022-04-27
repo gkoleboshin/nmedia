@@ -28,13 +28,16 @@ class MainActivity : AppCompatActivity() {
         viewModel.data.observe(this) { posts ->
             adapter.submitList(posts)
         }
-
-        viewModel.editPost.observe(this) { post: Post? ->
-            val content = post?.content ?: ""
-            val intent:Intent  = Intent(this,NewPostActivity::class.java)
-            intent.putExtra(EDIT_POST_CONTENT_KEY,content)
-            startActivity(intent)
-            viewModel.onSaveButtonClicked(addContentText())
+        val getMessage = registerForActivityResult(EditMessageResualtContract()){
+            if (it != null) {
+                viewModel.onSaveButtonClicked(it)
+            }
+        }
+        viewModel.editPost.observe(this){post->
+            if (post!=null){
+                val contentPost = post.content
+                getMessage.launch(contentPost)
+            }
         }
 
         viewModel.shareEvent.observe(this) { postContent ->
@@ -48,24 +51,9 @@ class MainActivity : AppCompatActivity() {
             startActivity(shareIntent)
         }
 
-
         binding.fab.setOnClickListener {
-            startActivity(intent)
+            getMessage.launch("")
         }
 
-
-
-    }
-
-    private fun addContentText():String {
-        val intentGet:Intent = getIntent()
-        val newPostContent = intent.getStringExtra(EDIT_POST_CONTENT_KEY)
-        if (newPostContent!=null) return newPostContent else return ""
-    }
-
-
-    private companion object {
-        const val NEW_POST_CONTENT_KEY = "NewPostContent"
-        const val EDIT_POST_CONTENT_KEY ="EditPostContent"
     }
 }

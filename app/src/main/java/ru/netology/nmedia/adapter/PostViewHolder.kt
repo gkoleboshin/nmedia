@@ -50,6 +50,7 @@ class PostViewHolder(
         this.post = post
         with(binding) {
             author.text = post.author
+
             published.text = post.published
             content.text = post.content
             like.text = numberToString(post.likes)

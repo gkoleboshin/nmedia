@@ -46,7 +46,7 @@ class PostViewModel : ViewModel(), PostInteractionListiner {
         repository.removeById(post.id)
     }
 
-    override fun onEdit(post: Post) {
+    override fun onEdit(post: Post?) {
         editPost.value = post
     }
 
