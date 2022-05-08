@@ -1,6 +1,6 @@
 package ru.netology.nmedia.adapter
 
-import android.view.View
+import  android.view.View
 import android.widget.PopupMenu
 import androidx.recyclerview.widget.RecyclerView
 import ru.netology.nmedia.R
@@ -49,6 +49,18 @@ class PostViewHolder(
             }
             menu.setOnClickListener {
                 popupMenu.show()
+            }
+            content.setOnClickListener {
+                interactionLisitner.onViewPost(post)
+            }
+            avatar.setOnClickListener {
+                interactionLisitner.onViewPost(post)
+            }
+            published.setOnClickListener {
+                interactionLisitner.onViewPost(post)
+            }
+            author.setOnClickListener {
+                interactionLisitner.onViewPost(post)
             }
         }
     }

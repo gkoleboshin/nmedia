@@ -4,16 +4,17 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".activity.NewPostActivity">
+    tools:context=".activity.NewPostFragment">
 
     <EditText
         android:id="@+id/edit"
+        android:paddingStart="20dp"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="@android:color/transparent"
         android:gravity="start|top"
         android:inputType="textMultiLine"
-        android:background="@android:color/transparent"
-        />
+        tools:ignore="SpeakableTextPresentCheck" />
 
     <com.google.android.material.bottomappbar.BottomAppBar
         android:id="@+id/bottomAppBar"

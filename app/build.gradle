@@ -1,6 +1,7 @@
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
+    id 'androidx.navigation.safeargs.kotlin'
 }
 
 android {
@@ -36,6 +37,9 @@ android {
 }
 
 dependencies {
+    implementation 'androidx.navigation:navigation-fragment-ktx:2.4.2'
+    implementation 'androidx.navigation:navigation-ui-ktx:2.4.2'
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     def core_version = "1.7.0"
     def appcompat_version = "1.4.1"
     def mdc_version = "1.5.0"
@@ -50,6 +54,7 @@ dependencies {
 
     implementation "androidx.core:core-ktx:$core_version"
     implementation "androidx.appcompat:appcompat:$appcompat_version"
+    implementation "androidx.fragment:fragment-ktx:1.4.1"
     implementation "com.google.android.material:material:$mdc_version"
     implementation "androidx.constraintlayout:constraintlayout:$constraintlayout_version"
     implementation "androidx.recyclerview:recyclerview:$recyclerview_version"

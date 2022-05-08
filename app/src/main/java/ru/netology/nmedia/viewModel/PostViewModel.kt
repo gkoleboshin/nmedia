@@ -8,20 +8,21 @@ import ru.netology.nmedia.adapter.PostInteractionListiner
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.repository.PostRepository
 import ru.netology.nmedia.repository.PostRepositoryFileImpl
-import ru.netology.nmedia.repository.PostRepositorySharedPrefsImpl
 import ru.netology.nmedia.util.SingleLiveEvent
 
 class PostViewModel(
-    application: Application):AndroidViewModel(application), PostInteractionListiner {
+    application: Application
+) : AndroidViewModel(application), PostInteractionListiner {
     private val repository: PostRepository = PostRepositoryFileImpl(application)
+    var curentPost: Post? = null
     val data by repository::data
-    val cancelEditPost = MutableLiveData<Boolean>(false)
-    val editPost = MutableLiveData<Post?>()
     val videoUrl = MutableLiveData<String>()
     val shareEvent = SingleLiveEvent<String>()
+    val navigeteToNewPostScreen = SingleLiveEvent<String>()
+    val navigeteToThisPostScreen = SingleLiveEvent<Long>()
 
-    fun onSaveButtonClicked(postContent: String) {
-        val updatedPost = editPost.value?.copy(
+    fun changeContent(postContent: String) {
+        val updatedPost = curentPost?.copy(
             content = postContent
         ) ?: Post(
             id = 0L,
@@ -31,7 +32,7 @@ class PostViewModel(
             likedByMe = false
         )
         repository.save(updatedPost)
-        this.editPost.value = null
+        this.curentPost = null
 
     }
 
@@ -50,17 +51,26 @@ class PostViewModel(
         repository.removeById(post.id)
     }
 
-    override fun onEdit(post: Post?) {
-        editPost.value = post
+    override fun onEdit(post: Post) {
+        curentPost = post
+        navigeteToNewPostScreen.value = post.content
     }
 
     override fun onCancel() {
-        cancelEditPost.value = !cancelEditPost.value!!
+
     }
 
     override fun onPlayVideo(post: Post) {
         videoUrl.value = post.contentVideo
+    }
 
+    override fun onViewPost(post: Post) {
+        repository.viewById(post.id)
+        navigeteToThisPostScreen.value = post.id
+    }
+
+    override fun onFindPostById(id: Long): Post {
+        return repository.findPostById(id)
     }
 
     // endregion PostInteractionListiner implmentation

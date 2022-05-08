@@ -17,5 +17,8 @@
     <string name="remove_post_action">Post remove</string>
     <string name="edit_post_action">Post edit</string>
     <string name="description_post_video_play">Play video</string>
-    <string name="description_post_video_content">Video content</string> />
+    <string name="description_post_video_content">Video content</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    />
 </resources>

@@ -29,7 +29,7 @@ class PostRepositorySharedPrefsImpl(application: Application) : PostRepository {
         prefs.getLong(SHARED_PREFS_NEXT_ID_KEY, 1L)
     ) { _, _, nextValue ->
         prefs.edit {
-            putLong(SHARED_PREFS_NEXT_ID_KEY,nextValue)
+            putLong(SHARED_PREFS_NEXT_ID_KEY, nextValue)
         }
     }
 
@@ -78,6 +78,15 @@ class PostRepositorySharedPrefsImpl(application: Application) : PostRepository {
 
     override fun save(post: Post) = if (post.id == NEW_POST_ID) insert(post) else update(post)
 
+    override fun findPostById(id: Long): Post {
+        return posts.first { it.id == id }
+    }
+
+    override fun viewById(id: Long) {
+        posts= posts.map{
+            if (it.id != id) it else it.copy(views = it.views+1)
+        }
+    }
 
     private fun insert(post: Post) {
         val indentifiedPost = post.copy(id = nextId++)

@@ -97,8 +97,6 @@ class PostRepositoryInMemoryImpl : PostRepository {
     }
 
 
-
-
     override fun shareById(id: Long) {
         data.value = posts.map {
             if (it.id != id) it else it.copy(shares = it.shares + 1)
@@ -111,6 +109,16 @@ class PostRepositoryInMemoryImpl : PostRepository {
 
     override fun save(post: Post) = if (post.id == 0L) insert(post) else update(post)
 
+    override fun findPostById(id: Long): Post {
+        return data.value!!.first { it.id == id }
+    }
+
+
+    override fun viewById(id: Long) {
+        data.value = posts.map {
+            if (it.id != id) it else it.copy(views = it.views + 1)
+        }
+    }
 
 
     private fun insert(post: Post) {
