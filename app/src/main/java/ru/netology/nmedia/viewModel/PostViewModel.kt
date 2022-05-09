@@ -5,15 +5,19 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import ru.netology.nmedia.adapter.PostInteractionListiner
+import ru.netology.nmedia.db.AppDb
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.repository.PostRepository
 import ru.netology.nmedia.repository.PostRepositoryFileImpl
+import ru.netology.nmedia.repository.PostRepositorySQLLiteImpl
 import ru.netology.nmedia.util.SingleLiveEvent
 
 class PostViewModel(
     application: Application
 ) : AndroidViewModel(application), PostInteractionListiner {
-    private val repository: PostRepository = PostRepositoryFileImpl(application)
+    private val repository: PostRepository = PostRepositorySQLLiteImpl(
+        AppDb.getInstance(application).postDao
+    )
     var curentPost: Post? = null
     val data by repository::data
     val videoUrl = MutableLiveData<String>()
