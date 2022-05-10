@@ -8,14 +8,13 @@ import ru.netology.nmedia.adapter.PostInteractionListiner
 import ru.netology.nmedia.db.AppDb
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.repository.PostRepository
-import ru.netology.nmedia.repository.PostRepositoryFileImpl
-import ru.netology.nmedia.repository.PostRepositorySQLLiteImpl
+import ru.netology.nmedia.repository.PostRepositoryImpl
 import ru.netology.nmedia.util.SingleLiveEvent
 
 class PostViewModel(
     application: Application
 ) : AndroidViewModel(application), PostInteractionListiner {
-    private val repository: PostRepository = PostRepositorySQLLiteImpl(
+    private val repository: PostRepository = PostRepositoryImpl(
         AppDb.getInstance(application).postDao
     )
     var curentPost: Post? = null
