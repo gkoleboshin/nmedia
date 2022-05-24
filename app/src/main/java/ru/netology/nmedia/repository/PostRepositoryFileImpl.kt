@@ -7,7 +7,7 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import ru.netology.nmedia.dto.Post
 
-class PostRepositoryFileImpl(private  val application: Application) : PostRepository {
+class PostRepositoryFileImpl(private val application: Application) : PostRepository {
 
     // region Gson config
 
@@ -29,8 +29,8 @@ class PostRepositoryFileImpl(private  val application: Application) : PostReposi
         set(value) {
             data.value = value
             application.openFileOutput(
-                FILE_NAME,Context.MODE_PRIVATE
-            ).bufferedWriter().use{bufferedWriter->
+                FILE_NAME, Context.MODE_PRIVATE
+            ).bufferedWriter().use { bufferedWriter ->
                 bufferedWriter.write(gson.toJson(value))
             }
         }
@@ -70,13 +70,11 @@ class PostRepositoryFileImpl(private  val application: Application) : PostReposi
     }
 
     override fun save(post: Post) = if (post.id == NEW_POST_ID) insert(post) else update(post)
-    override fun findPostById(id: Long): Post {
-        return posts.first { it.id==id}
-    }
+
 
     override fun viewById(id: Long) {
-        posts= posts.map{
-            if (it.id != id) it else it.copy(views = it.views+1)
+        posts = posts.map {
+            if (it.id != id) it else it.copy(views = it.views + 1)
         }
     }
 

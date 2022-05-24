@@ -109,10 +109,6 @@ class PostRepositoryInMemoryImpl : PostRepository {
 
     override fun save(post: Post) = if (post.id == 0L) insert(post) else update(post)
 
-    override fun findPostById(id: Long): Post {
-        return data.value!!.first { it.id == id }
-    }
-
 
     override fun viewById(id: Long) {
         data.value = posts.map {

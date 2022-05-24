@@ -69,9 +69,6 @@ class PostViewModel(
         navigeteToThisPostScreen.value = post.id
     }
 
-    override fun onFindPostById(id: Long): Post {
-        return repository.findPostById(id)
-    }
 
     // endregion PostInteractionListiner implmentation
 }
