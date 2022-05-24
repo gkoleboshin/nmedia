@@ -36,8 +36,8 @@ class ViewPostFragment : Fragment() {
             startActivity(shareIntent)
         }
     }
-    override fun onCreateView(
 
+    override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -46,63 +46,64 @@ class ViewPostFragment : Fragment() {
         container,
         false
     ).also { binding ->
-        val post  =  viewModel.onFindPostById(args.postId)
-        with(binding) {
-            author.text = post.author
-            published.text = post.published
-            content.text = post.content
-            content.movementMethod = ScrollingMovementMethod()
-            like.text = numberToString(post.likes)
-            share.text = numberToString(post.shares)
-            views.text = numberToString(post.views)
-            like.isChecked = post.likedByMe
-            if (post.contentVideo.isBlank()) group.visibility = View.GONE else group.visibility =
-                View.VISIBLE
-            like.setOnClickListener {
-                viewModel.onLike(post)
-                like.text = viewModel.onFindPostById(args.postId).likes.toString()
-            }
-            share.setOnClickListener {
-                viewModel.onShare(post)
-                share.text = viewModel.onFindPostById(args.postId).shares.toString()
-            }
-            parentFragmentManager.setFragmentResultListener(
-                NewPostFragment.REQUEST_KEY, viewLifecycleOwner
-            ) { requestKey, resultBundle ->
-                if (requestKey != NewPostFragment.REQUEST_KEY) return@setFragmentResultListener
+        viewModel.data.observe(viewLifecycleOwner) { posts ->
+            val post = posts.find { it.id == args.postId } ?: return@observe
+            with(binding) {
+                author.text = post.author
+                published.text = post.published
+                content.text = post.content
+                content.movementMethod = ScrollingMovementMethod()
+                like.text = numberToString(post.likes)
+                share.text = numberToString(post.shares)
+                views.text = numberToString(post.views)
+                like.isChecked = post.likedByMe
+                if (post.contentVideo.isBlank()) group.visibility =
+                    View.GONE else group.visibility =
+                    View.VISIBLE
+                like.setOnClickListener {
+                    viewModel.onLike(post)
+                }
+                share.setOnClickListener {
+                    viewModel.onShare(post)
+                }
+                parentFragmentManager.setFragmentResultListener(
+                    NewPostFragment.REQUEST_KEY, viewLifecycleOwner
+                ) { requestKey, resultBundle ->
+                    if (requestKey != NewPostFragment.REQUEST_KEY) return@setFragmentResultListener
 
-                val newPostContent = resultBundle.getString(
-                    NewPostFragment.NEW_POST_CONTENT_KEY, ""
-                )
-                viewModel.changeContent(newPostContent)
-                content.text=newPostContent
-            }
+                    val newPostContent = resultBundle.getString(
+                        NewPostFragment.NEW_POST_CONTENT_KEY, ""
+                    )
+                    viewModel.changeContent(newPostContent)
+                }
 
-            val popupMenu = PopupMenu(menu.context, binding.menu).apply {
-                inflate(R.menu.options_post)
-                setOnMenuItemClickListener { menuItem ->
-                    when (menuItem.itemId) {
-                        R.id.remove -> {
-                            viewModel.onRemove(post)
-                            parentFragmentManager.popBackStack()
-                            true
+                val popupMenu = PopupMenu(menu.context, binding.menu).apply {
+                    inflate(R.menu.options_post)
+                    setOnMenuItemClickListener { menuItem ->
+                        when (menuItem.itemId) {
+                            R.id.remove -> {
+                                viewModel.onRemove(post)
+                                parentFragmentManager.popBackStack()
+                                true
+                            }
+                            R.id.edit -> {
+                                viewModel.curentPost = post
+                                val directions =
+                                    ViewPostFragmentDirections.actionThisPostFragmentToNewPostFragment(
+                                        post.content
+                                    )
+                                findNavController().navigate(directions)
+                                true
+                            }
+                            else -> false
                         }
-                        R.id.edit -> {
-                            viewModel.curentPost=post
-                            val directions =
-                                ViewPostFragmentDirections.actionThisPostFragmentToNewPostFragment(post.content)
-                            findNavController().navigate(directions)
-                            true
-                        }
-                        else -> false
                     }
                 }
-            }
-            menu.setOnClickListener {
-                popupMenu.show()
+                menu.setOnClickListener {
+                    popupMenu.show()
+                }
             }
         }
-
     }.root
 
     fun numberToString(number: Int): String {

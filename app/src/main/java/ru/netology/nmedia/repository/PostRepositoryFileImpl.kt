@@ -70,9 +70,7 @@ class PostRepositoryFileImpl(private  val application: Application) : PostReposi
     }
 
     override fun save(post: Post) = if (post.id == NEW_POST_ID) insert(post) else update(post)
-    override fun findPostById(id: Long): Post {
-        return posts.first { it.id==id}
-    }
+
 
     override fun viewById(id: Long) {
         posts= posts.map{

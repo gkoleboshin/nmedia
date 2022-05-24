@@ -52,10 +52,6 @@ class PostRepositorySQLLiteImpl(
         data.value = posts
     }
 
-    override fun findPostById(id: Long): Post {
-        return dao.findPostById(id)
-    }
-
     override fun viewById(id: Long) {
         dao.viewById(id)
         posts = posts.map {

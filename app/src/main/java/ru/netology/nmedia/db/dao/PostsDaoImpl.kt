@@ -106,16 +106,7 @@ class PostsDaoImpl(
         )
     }
 
-    override fun findPostById(id: Long) = db.query(
-        PostsTable.NAME,
-        PostsTable.ALL_COLUMN_NAMES,
-        "${PostsTable.Column.ID.columnName} = ?",
-        arrayOf(id.toString()),
-        null, null, null
-    ).use {
-        it.moveToNext()
-        it.toPost()
-    }
+
 
 
     override fun viewById(id: Long) {

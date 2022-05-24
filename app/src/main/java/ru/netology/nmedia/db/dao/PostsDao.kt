@@ -9,6 +9,5 @@ interface PostsDao {
     fun likeById(id:Long)
     fun removeById(id:Long)
     fun shareById(id:Long)
-    fun findPostById(id:Long):Post
     fun viewById(id:Long)
 }
