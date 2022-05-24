@@ -10,8 +10,17 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.NMedia">
         <activity
-            android:name=".MainActivity"
+            android:name=".activity.AppActivity"
             android:exported="true">
+            <nav-graph android:value="@navigation/nav_graph" />
+
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <data android:mimeType="text/plain" />
+            </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
