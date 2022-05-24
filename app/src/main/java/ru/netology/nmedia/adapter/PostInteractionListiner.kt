@@ -10,5 +10,4 @@ interface PostInteractionListiner {
     fun onCancel()
     fun onPlayVideo(post:Post)
     fun onViewPost(post:Post)
-    fun onFindPostById(id:Long):Post
 }

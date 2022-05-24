@@ -32,11 +32,6 @@ class PostRepositoryImpl(private val postDao: PostDao) : PostRepository {
         postDao.removeById(id)
     }
 
-
-    override fun findPostById(id: Long)= postDao.findById(id).toModel()
-
-
-
     override fun viewById(id: Long) {
         postDao.viewById(id)
     }

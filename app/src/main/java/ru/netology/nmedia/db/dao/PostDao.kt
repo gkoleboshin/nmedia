@@ -30,8 +30,6 @@ interface PostDao {
     )
     fun likeById(id: Long)
 
-    @Query("SELECT*FROM posts WHERE id =:id")
-    fun findById(id: Long):PostEntity
 
     @Query("DELETE FROM posts WHERE id = :id")
     fun removeById(id: Long)
