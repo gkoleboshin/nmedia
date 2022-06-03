@@ -73,6 +73,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     fun likeById(id: Long) {
         thread {
             repository.likeById(id)
+            // Начинаем загрузку
             _data.postValue(FeedModel(loading = true))
             try {
                 // Данные успешно получены
@@ -83,7 +84,6 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
                 FeedModel(error = true)
             }.also(_data::postValue)
         }
-
     }
 
     fun removeById(id: Long) {

@@ -10,7 +10,7 @@ import ru.netology.nmedia.dto.Post
 import java.util.concurrent.TimeUnit
 
 
-class PostRepositoryImpl : PostRepository {
+class PostRepositoryImpl: PostRepository {
     private val client = OkHttpClient.Builder()
         .connectTimeout(30, TimeUnit.SECONDS)
         .build()
@@ -73,27 +73,28 @@ class PostRepositoryImpl : PostRepository {
                 .close()
         }
 
-}
+    }
 
-override fun save(post: Post) {
-    val request: Request = Request.Builder()
-        .post(gson.toJson(post).toRequestBody(jsonType))
-        .url("${BASE_URL}/api/slow/posts")
-        .build()
 
-    client.newCall(request)
-        .execute()
-        .close()
-}
+    override fun save(post: Post) {
+        val request: Request = Request.Builder()
+            .post(gson.toJson(post).toRequestBody(jsonType))
+            .url("${BASE_URL}/api/slow/posts")
+            .build()
 
-override fun removeById(id: Long) {
-    val request: Request = Request.Builder()
-        .delete()
-        .url("${BASE_URL}/api/slow/posts/$id")
-        .build()
+        client.newCall(request)
+            .execute()
+            .close()
+    }
 
-    client.newCall(request)
-        .execute()
-        .close()
-}
+    override fun removeById(id: Long) {
+        val request: Request = Request.Builder()
+            .delete()
+            .url("${BASE_URL}/api/slow/posts/$id")
+            .build()
+
+        client.newCall(request)
+            .execute()
+            .close()
+    }
 }
