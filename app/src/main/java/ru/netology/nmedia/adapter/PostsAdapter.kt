@@ -6,6 +6,7 @@ import android.widget.PopupMenu
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import ru.netology.nmedia.R
 import ru.netology.nmedia.databinding.CardPostBinding
 import ru.netology.nmedia.dto.Post
@@ -39,11 +40,17 @@ class PostViewHolder(
     fun bind(post: Post) {
         binding.apply {
             author.text = post.author
-            published.text = post.published
+            published.text = post.published.toString()
             content.text = post.content
             // в адаптере
             like.isChecked = post.likedByMe
             like.text = "${post.likes}"
+
+            Glide.with(avatar)
+                .load("http://10.0.2.2:9999/avatars/${post.authorAvatar}")
+                .circleCrop()
+                .timeout(10_000)
+                .into(binding.avatar)
 
             menu.setOnClickListener {
                 PopupMenu(it.context, it).apply {
