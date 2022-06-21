@@ -37,6 +37,8 @@ class PostViewHolder(
     private val onInteractionListener: OnInteractionListener,
 ) : RecyclerView.ViewHolder(binding.root) {
 
+    private val baseUrl = "http://10.0.2.2:9999"
+
     fun bind(post: Post) {
         binding.apply {
             author.text = post.author
@@ -47,10 +49,15 @@ class PostViewHolder(
             like.text = "${post.likes}"
 
             Glide.with(avatar)
-                .load("http://10.0.2.2:9999/avatars/${post.authorAvatar}")
+                .load("$baseUrl/avatars/${post.authorAvatar}")
                 .circleCrop()
                 .timeout(10_000)
                 .into(binding.avatar)
+
+            Glide.with(attachment)
+                .load("$baseUrl/images/${post.attachment?.url}")
+                .timeout(10_000)
+                .into(binding.attachment)
 
             menu.setOnClickListener {
                 PopupMenu(it.context, it).apply {
