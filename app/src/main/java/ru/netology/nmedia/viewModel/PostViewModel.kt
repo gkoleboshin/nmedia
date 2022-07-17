@@ -3,8 +3,11 @@ package ru.netology.nmedia.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.*
+import kotlinx.coroutines.launch
+import ru.netology.nmedia.db.AppDb
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.model.FeedModel
+import ru.netology.nmedia.model.FeedModelState
 import ru.netology.nmedia.repository.*
 import ru.netology.nmedia.util.SingleLiveEvent
 import java.io.IOException
@@ -16,19 +19,20 @@ private val empty = Post(
     authorAvatar = "netology.jpg",
     likedByMe = false,
     likes = 0,
-    published = 0
+    published = ""
 )
 
 class PostViewModel(application: Application) : AndroidViewModel(application) {
-    // упрощённый вариант
-    private val repository: PostRepository = PostRepositoryImpl()
-    private val _data = MutableLiveData(FeedModel())
-    private var lastIdRemove: Long? = null
-    private var lastPost: Post? = null
-    private var lastAction: ActionType? = null
 
-    val data: LiveData<FeedModel>
-        get() = _data
+
+    // упрощённый вариант
+    private val repository: PostRepository =
+        PostRepositoryImpl(AppDb.getInstance(context = application).postDao())
+    val data: LiveData<FeedModel> = repository.data.map(::FeedModel)
+    private val _dataState = MutableLiveData<FeedModelState>()
+    val dataState: LiveData<FeedModelState>
+        get() = _dataState
+
     val edited = MutableLiveData(empty)
     private val _postCreated = SingleLiveEvent<Unit>()
     val postCreated: LiveData<Unit>
@@ -38,41 +42,41 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         loadPosts()
     }
 
-    fun loadPosts() {
-        lastAction = ActionType.LOAD
-        _data.postValue(FeedModel(loading = true))
-        repository.getAllAsync(object : PostRepository.Callback<List<Post>> {
+    fun loadPosts() = viewModelScope.launch {
+        try {
+            _dataState.value = FeedModelState(loading = true)
+            repository.getAll()
+            _dataState.value = FeedModelState()
+        } catch (e: Exception) {
+            _dataState.value = FeedModelState(error = true)
+        }
+    }
 
-            override fun onSuccess(posts: List<Post>) {
-                lastAction = null
-                _data.postValue(FeedModel(posts = posts, empty = posts.isEmpty()))
-            }
-
-            override fun onError(e: Exception) {
-                _data.postValue(FeedModel(error = true))
-            }
-        })
+    fun refreshPosts() = viewModelScope.launch {
+        try {
+            _dataState.value = FeedModelState(refreshing = true)
+            repository.getAll()
+            _dataState.value = FeedModelState()
+        } catch (e: Exception) {
+            _dataState.value = FeedModelState(error = true)
+        }
     }
 
 
     fun save() {
-
         edited.value?.let {
-            lastPost = it
-            lastAction = ActionType.SAVE
-            repository.saveAsync(it, object : PostRepository.Callback<Post> {
-                override fun onSuccess(posts: Post) {
-                    lastAction = null
-                    lastPost = null
-                    _postCreated.postValue(Unit)
-                }
+            _postCreated.value = Unit
+            viewModelScope.launch {
+                try {
+                    repository.save(it)
+                    _dataState.value = FeedModelState()
+                } catch (e: Exception) {
+                    _dataState.value = FeedModelState(error = true)
 
-                override fun onError(e: Exception) {
-                    _data.postValue(FeedModel(error = true))
                 }
-            })
+            }
         }
-        edited.value = empty
+
     }
 
     fun edit(post: Post) {
@@ -88,80 +92,26 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun likeById(post: Post) {
-        lastAction = ActionType.LIKE
-        lastPost = post
-        repository.likeByIdByIdAsync(post, object : PostRepository.Callback<Post> {
-            override fun onSuccess(posts: Post) {
-                lastPost = null
-                lastAction = null
-                val postsUp = _data.value?.posts?.map {
-                    if (it.id != post.id) it else posts
-                } ?: return
-                _data.postValue(FeedModel(posts = postsUp, error = false))
+        viewModelScope.launch {
+            try {
+                repository.likeByIdById(post)
+                _dataState.value = FeedModelState()
+            } catch (e: Exception) {
+                _dataState.value = FeedModelState(error = true)
             }
-
-            override fun onError(e: Exception) {
-                retry()
-            }
-        })
+        }
     }
 
     fun removeById(id: Long) {
-        // Оптимистичная модель
-
-        lastAction = ActionType.REMOVE
-        lastIdRemove = id
-        val old = _data.value?.posts.orEmpty()
-        _data.postValue(
-            _data.value?.copy(posts = _data.value?.posts.orEmpty()
-                .filter { it.id != id }
-            )
-        )
-        try {
-            repository.removeByIdAsync(id, object : PostRepository.Callback<Unit> {
-                override fun onError(e: Exception) {
-                    _data.postValue(FeedModel(error = true))
-                }
-            })
-        } catch (e: IOException) {
-            _data.postValue(_data.value?.copy(posts = old))
-        }
-
-    }
-
-    fun retrySave() {
-        lastPost?.let {
-            edited.value = it
-            save()
+        viewModelScope.launch {
+            try {
+                repository.removeById(id)
+                _dataState.value = FeedModelState()
+            } catch (e: Exception) {
+                _dataState.value = FeedModelState(error = true)
+            }
         }
     }
 
-    fun retryLike() {
-        lastPost?.let {
-            likeById(it)
-        }
-    }
-
-    fun retryRemove() {
-        lastIdRemove?.let {
-            removeById(it)
-        }
-    }
-
-
-    fun retry() {
-        when (lastAction) {
-            ActionType.LIKE -> retryLike()
-            ActionType.REMOVE -> retryRemove()
-            ActionType.SAVE -> retrySave()
-            ActionType.LOAD -> loadPosts()
-        }
-    }
 }
 
-enum class ActionType {
-    REMOVE,
-    LIKE,
-    SAVE,
-    LOAD
-}

@@ -6,10 +6,12 @@ import android.widget.PopupMenu
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
+import ru.netology.nmedia.BuildConfig
 import ru.netology.nmedia.R
 import ru.netology.nmedia.databinding.CardPostBinding
 import ru.netology.nmedia.dto.Post
+import ru.netology.nmedia.loadCircleCrop
+
 
 interface OnInteractionListener {
     fun onLike(post: Post) {}
@@ -37,27 +39,14 @@ class PostViewHolder(
     private val onInteractionListener: OnInteractionListener,
 ) : RecyclerView.ViewHolder(binding.root) {
 
-    private val baseUrl = "http://10.0.2.2:9999"
-
     fun bind(post: Post) {
         binding.apply {
             author.text = post.author
-            published.text = post.published.toString()
+            published.text = post.published
             content.text = post.content
-            // в адаптере
+            avatar.loadCircleCrop("${BuildConfig.BASE_URL}/avatars/${post.authorAvatar}")
             like.isChecked = post.likedByMe
             like.text = "${post.likes}"
-
-            Glide.with(avatar)
-                .load("$baseUrl/avatars/${post.authorAvatar}")
-                .circleCrop()
-                .timeout(10_000)
-                .into(binding.avatar)
-
-            Glide.with(attachment)
-                .load("$baseUrl/images/${post.attachment?.url}")
-                .timeout(10_000)
-                .into(binding.attachment)
 
             menu.setOnClickListener {
                 PopupMenu(it.context, it).apply {
