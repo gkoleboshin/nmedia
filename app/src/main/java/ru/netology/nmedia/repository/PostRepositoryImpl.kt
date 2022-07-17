@@ -35,14 +35,16 @@ class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
         }
     }
 
-    override suspend fun save(post: Post) {
+    override suspend fun save(post: Post, saveDAO: Boolean) {
         try {
             val response = PostApi.service.save(post)
             if (!response.isSuccessful) {
                 throw ApiError(response.code(), response.message())
             }
             val body = response.body() ?: throw ApiError(response.code(), response.message())
-            dao.insert(PostEntity.fromDto(body))
+            if (saveDAO) {
+                dao.insert(PostEntity.fromDto(body))
+            }
         } catch (e: IOException) {
             throw NetworkError
         } catch (e: Exception) {
@@ -50,8 +52,10 @@ class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
         }
     }
 
-    override suspend fun removeById(id: Long) {
-        dao.removeById(id)
+    override suspend fun removeById(id: Long, saveDAO: Boolean) {
+        if (saveDAO){
+            dao.removeById(id)
+        }
         try {
             val responce = PostApi.service.removeById(id)
             if (!responce.isSuccessful) {
@@ -64,10 +68,12 @@ class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
         }
     }
 
-    override suspend fun likeByIdById(post: Post) {
+    override suspend fun likeByIdById(post: Post, saveDAO: Boolean) {
         if (post.likedByMe) {
-            val upPost = post.copy(likedByMe = !post.likedByMe, likes = post.likes - 1)
-            dao.insert(upPost.toEntity())
+            if (saveDAO){
+                val upPost = post.copy(likedByMe = !post.likedByMe, likes = post.likes - 1)
+                dao.insert(upPost.toEntity())
+            }
             try {
                 val response = PostApi.service.dislikedById(post.id)
                 if (!response.isSuccessful) {

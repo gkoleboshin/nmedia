@@ -37,6 +37,9 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     private val _postCreated = SingleLiveEvent<Unit>()
     val postCreated: LiveData<Unit>
         get() = _postCreated
+    private var lastIdRemove: Long? = null
+    private var lastPost: Post? = null
+    private var lastAction: ActionType? = null
 
     init {
         loadPosts()
@@ -63,12 +66,12 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     }
 
 
-    fun save() {
+    fun save(saveDAO:Boolean = true) {
         edited.value?.let {
             _postCreated.value = Unit
             viewModelScope.launch {
                 try {
-                    repository.save(it)
+                    repository.save(it,saveDAO)
                     _dataState.value = FeedModelState()
                 } catch (e: Exception) {
                     _dataState.value = FeedModelState(error = true)
@@ -91,27 +94,70 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         edited.value = edited.value?.copy(content = text)
     }
 
-    fun likeById(post: Post) {
+    fun likeById(post: Post,saveDAO: Boolean = true) {
         viewModelScope.launch {
             try {
-                repository.likeByIdById(post)
+                repository.likeByIdById(post,saveDAO)
                 _dataState.value = FeedModelState()
+                lastAction = null
+                lastPost = null
             } catch (e: Exception) {
+                lastAction = ActionType.LIKE
+                lastPost = post
                 _dataState.value = FeedModelState(error = true)
             }
         }
     }
 
-    fun removeById(id: Long) {
+    fun removeById(id: Long,saveDAO: Boolean = true) {
         viewModelScope.launch {
             try {
-                repository.removeById(id)
+                repository.removeById(id,saveDAO)
                 _dataState.value = FeedModelState()
+                lastAction = null
+                lastIdRemove = null
             } catch (e: Exception) {
+                lastAction = ActionType.REMOVE
+                lastIdRemove = id
                 _dataState.value = FeedModelState(error = true)
             }
+        }
+    }
+
+    fun retrySave() {
+        lastPost?.let {
+            edited.value = it
+            save(false)
+        }
+    }
+
+    fun retryLike() {
+        lastPost?.let {
+            likeById(it,false)
+        }
+    }
+
+    fun retryRemove() {
+        lastIdRemove?.let {
+            removeById(it,false)
+        }
+    }
+
+
+    fun retry() {
+        when (lastAction) {
+            ActionType.LIKE -> retryLike()
+            ActionType.REMOVE -> retryRemove()
+            ActionType.SAVE -> retrySave()
+            ActionType.LOAD -> loadPosts()
         }
     }
 
 }
 
+enum class ActionType {
+    REMOVE,
+    LIKE,
+    SAVE,
+    LOAD
+}

@@ -7,7 +7,7 @@ import javax.security.auth.callback.Callback
 interface PostRepository {
     val data: LiveData<List<Post>>
     suspend fun getAll()
-    suspend fun save(post: Post)
-    suspend fun removeById(id: Long)
-    suspend fun likeByIdById(post: Post)
+    suspend fun save(post: Post, saveDAO: Boolean)
+    suspend fun removeById(id: Long, saveDAO: Boolean)
+    suspend fun likeByIdById(post: Post, saveDAO: Boolean)
 }
