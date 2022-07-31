@@ -9,6 +9,8 @@ import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.LinearSmoothScroller
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import ru.netology.nmedia.R
 import ru.netology.nmedia.adapter.OnInteractionListener
@@ -16,6 +18,7 @@ import ru.netology.nmedia.adapter.PostsAdapter
 import ru.netology.nmedia.databinding.FragmentFeedBinding
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.viewmodel.PostViewModel
+import java.text.FieldPosition
 
 class FeedFragment : Fragment() {
 
@@ -59,13 +62,26 @@ class FeedFragment : Fragment() {
             binding.swiperefresh.isRefreshing = state.refreshing
             if (state.error) {
                 Snackbar.make(binding.root, R.string.error_loading, Snackbar.LENGTH_LONG)
-                    .setAction(R.string.retry_loading) { viewModel.retry()}
+                    .setAction(R.string.retry_loading) { viewModel.retry() }
                     .show()
             }
         }
         viewModel.data.observe(viewLifecycleOwner) { state ->
-            adapter.submitList(state.posts)
+            val showPost = state.posts.filter { it.show }
+            adapter.submitList(showPost)
             binding.emptyText.isVisible = state.empty
+        }
+
+        viewModel.newerCount.observe(viewLifecycleOwner) {
+            if (it != 0) {
+                binding.newPostsToDownlad.text = "Свежие записи"
+                binding.newPostsToDownlad.isVisible = true
+            }
+        }
+        binding.newPostsToDownlad.setOnClickListener {
+            binding.newPostsToDownlad.isVisible = false
+            viewModel.showNewer()
+            binding.list.smoothSnapToPosition(0)
         }
 
         binding.swiperefresh.setOnRefreshListener {
@@ -77,5 +93,18 @@ class FeedFragment : Fragment() {
         }
 
         return binding.root
+    }
+    fun RecyclerView.smoothSnapToPosition(position: Int, snapMode:Int=LinearSmoothScroller.SNAP_TO_START){
+        val smothScroller= object : LinearSmoothScroller(this.context) {
+            override fun getVerticalSnapPreference(): Int {
+                return snapMode
+            }
+
+            override fun getHorizontalSnapPreference(): Int {
+                return snapMode
+            }
+        }
+        smothScroller.targetPosition = position
+        layoutManager?.startSmoothScroll(smothScroller)
     }
 }

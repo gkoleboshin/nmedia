@@ -10,10 +10,19 @@ data class Post(
     val published: String,
     val likedByMe: Boolean,
     val likes: Int = 0,
+    val show: Boolean = true
 
 )
 
-fun Post.toEntity(): PostEntity {
-    return PostEntity(id=id,author=author,authorAvatar=authorAvatar,content=content,published=published, likedById = likedByMe,likes=likes)
-}
+fun Post.toEntity(): PostEntity = PostEntity(
+    id = id,
+    author = author,
+    authorAvatar = authorAvatar,
+    content = content,
+    published = published,
+    likedById = likedByMe,
+    likes = likes,
+    show = show
+)
+
 
