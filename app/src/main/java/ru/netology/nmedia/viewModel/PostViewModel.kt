@@ -2,17 +2,21 @@ package ru.netology.nmedia.viewmodel
 
 
 import android.app.Application
+import android.net.Uri
 import androidx.lifecycle.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import ru.netology.nmedia.db.AppDb
+import ru.netology.nmedia.dto.MediaUpload
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.model.FeedModel
 import ru.netology.nmedia.model.FeedModelState
+import ru.netology.nmedia.model.PhotoModel
 import ru.netology.nmedia.repository.*
 import ru.netology.nmedia.util.SingleLiveEvent
+import java.io.File
 import java.io.IOException
 
 private val empty = Post(
@@ -24,6 +28,7 @@ private val empty = Post(
     likes = 0,
     published = ""
 )
+private val noPhoto = PhotoModel()
 
 class PostViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -33,8 +38,8 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         PostRepositoryImpl(AppDb.getInstance(context = application).postDao())
     val data: LiveData<FeedModel> = repository.data.map(::FeedModel)
         .asLiveData(Dispatchers.Default)
-    val newerCount:LiveData<Int> =data.switchMap {
-        repository.getNewer(it.posts.firstOrNull()?.id?:0L)
+    val newerCount: LiveData<Int> = data.switchMap {
+        repository.getNewer(it.posts.firstOrNull()?.id ?: 0L)
             .asLiveData(Dispatchers.Default)
     }
         .distinctUntilChanged()
@@ -42,7 +47,11 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     val dataState: LiveData<FeedModelState>
         get() = _dataState
 
-    val edited = MutableLiveData(empty)
+    private val edited = MutableLiveData(empty)
+    private val _photo = MutableLiveData<PhotoModel?>(null)
+    val photo: LiveData<PhotoModel?>
+        get() = _photo
+
     private val _postCreated = SingleLiveEvent<Unit>()
     val postCreated: LiveData<Unit>
         get() = _postCreated
@@ -75,20 +84,25 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     }
 
 
-    fun save(saveDAO:Boolean = true) {
+    fun save(saveDAO: Boolean = true) {
         edited.value?.let {
             _postCreated.value = Unit
             viewModelScope.launch {
                 try {
-                    repository.save(it,saveDAO)
+                    when(_photo.value) {
+                        noPhoto -> repository.save(it,saveDAO)
+                        else -> _photo.value?.file?.let { file ->
+                            repository.saveWithAttachment(it, MediaUpload(file))
+                        }
+                    }
                     _dataState.value = FeedModelState()
                 } catch (e: Exception) {
                     _dataState.value = FeedModelState(error = true)
-
                 }
             }
         }
-
+        edited.value = empty
+        _photo.value = noPhoto
     }
 
     fun edit(post: Post) {
@@ -103,10 +117,14 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         edited.value = edited.value?.copy(content = text)
     }
 
-    fun likeById(post: Post,saveDAO: Boolean = true) {
+    fun changePhoto(uri: Uri?, file: File?) {
+        _photo.value = PhotoModel(uri, file)
+    }
+
+    fun likeById(post: Post, saveDAO: Boolean = true) {
         viewModelScope.launch {
             try {
-                repository.likeByIdById(post,saveDAO)
+                repository.likeByIdById(post, saveDAO)
                 _dataState.value = FeedModelState()
                 lastAction = null
                 lastPost = null
@@ -118,10 +136,10 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun removeById(id: Long,saveDAO: Boolean = true) {
+    fun removeById(id: Long, saveDAO: Boolean = true) {
         viewModelScope.launch {
             try {
-                repository.removeById(id,saveDAO)
+                repository.removeById(id, saveDAO)
                 _dataState.value = FeedModelState()
                 lastAction = null
                 lastIdRemove = null
@@ -133,10 +151,10 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun showNewer(){
-       viewModelScope.launch {
-           repository.showNewer()
-       }
+    fun showNewer() {
+        viewModelScope.launch {
+            repository.showNewer()
+        }
 
     }
 
@@ -149,13 +167,13 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
 
     fun retryLike() {
         lastPost?.let {
-            likeById(it,false)
+            likeById(it, false)
         }
     }
 
     fun retryRemove() {
         lastIdRemove?.let {
-            removeById(it,false)
+            removeById(it, false)
         }
     }
 
@@ -166,6 +184,7 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
             ActionType.REMOVE -> retryRemove()
             ActionType.SAVE -> retrySave()
             ActionType.LOAD -> loadPosts()
+            else -> 0
         }
     }
 

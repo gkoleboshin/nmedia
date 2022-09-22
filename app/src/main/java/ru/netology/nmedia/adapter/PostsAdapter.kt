@@ -48,7 +48,7 @@ class PostViewHolder(
             avatar.loadCircleCrop("${BuildConfig.BASE_URL}/avatars/${post.authorAvatar}")
             like.isChecked = post.likedByMe
             like.text = "${post.likes}"
-
+            if (post.attachment==null){attachment.loadCircleCrop("${BuildConfig.BASE_URL}/media/${post.attachment}")}
             menu.setOnClickListener {
                 PopupMenu(it.context, it).apply {
                     inflate(R.menu.options_post)

@@ -1,5 +1,6 @@
 package ru.netology.nmedia.dto
 
+import ru.netology.nmedia.entity.AttachmentEmbeddable
 import ru.netology.nmedia.entity.PostEntity
 
 data class Post(
@@ -10,7 +11,8 @@ data class Post(
     val published: String,
     val likedByMe: Boolean,
     val likes: Int = 0,
-    val show: Boolean = true
+    val show: Boolean = true,
+    val attachment: Attachment?= null
 
 )
 
@@ -22,7 +24,8 @@ fun Post.toEntity(): PostEntity = PostEntity(
     published = published,
     likedById = likedByMe,
     likes = likes,
-    show = show
+    show = show,
+    attachment = AttachmentEmbeddable.fromDto(attachment)
 )
 
 
