@@ -16,6 +16,7 @@ import ru.netology.nmedia.R
 import ru.netology.nmedia.adapter.OnInteractionListener
 import ru.netology.nmedia.adapter.PostsAdapter
 import ru.netology.nmedia.databinding.FragmentFeedBinding
+import ru.netology.nmedia.dto.Attachment
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.viewmodel.PostViewModel
 import java.text.FieldPosition
@@ -38,6 +39,11 @@ class FeedFragment : Fragment() {
 
             override fun onLike(post: Post) {
                 viewModel.likeById(post)
+            }
+
+            override fun onViewAttachment(post: Post) {
+                viewModel.photoIsView = false
+                post.attachment?.let { viewModel.getAttachment(it) }
             }
 
             override fun onRemove(post: Post) {
@@ -66,6 +72,14 @@ class FeedFragment : Fragment() {
                     .show()
             }
         }
+
+        viewModel.attachment.observe(viewLifecycleOwner) { attachment ->
+            if (!viewModel.photoIsView) {
+                findNavController().navigate(R.id.action_feedFragment_to_photoFragment)
+            }
+        }
+
+
         viewModel.data.observe(viewLifecycleOwner) { state ->
             val showPost = state.posts.filter { it.show }
             adapter.submitList(showPost)
@@ -94,8 +108,12 @@ class FeedFragment : Fragment() {
 
         return binding.root
     }
-    fun RecyclerView.smoothSnapToPosition(position: Int, snapMode:Int=LinearSmoothScroller.SNAP_TO_START){
-        val smothScroller= object : LinearSmoothScroller(this.context) {
+
+    fun RecyclerView.smoothSnapToPosition(
+        position: Int,
+        snapMode: Int = LinearSmoothScroller.SNAP_TO_START
+    ) {
+        val smothScroller = object : LinearSmoothScroller(this.context) {
             override fun getVerticalSnapPreference(): Int {
                 return snapMode
             }

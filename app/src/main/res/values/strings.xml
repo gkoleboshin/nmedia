@@ -25,4 +25,7 @@
     <string name="remove" />
     <string name="description_select_photo" />
     <string name="description_take_photo" />
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="menu_back">back</string>
 </resources>

@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import ru.netology.nmedia.db.AppDb
+import ru.netology.nmedia.dto.Attachment
 import ru.netology.nmedia.dto.MediaUpload
 import ru.netology.nmedia.dto.Post
 import ru.netology.nmedia.model.FeedModel
@@ -32,8 +33,12 @@ private val noPhoto = PhotoModel()
 
 class PostViewModel(application: Application) : AndroidViewModel(application) {
 
+     private val _attachment =MutableLiveData<Attachment>()
 
-    // упрощённый вариант
+    val attachment: LiveData<Attachment>
+        get() = _attachment
+
+        // упрощённый вариант
     private val repository: PostRepository =
         PostRepositoryImpl(AppDb.getInstance(context = application).postDao())
     val data: LiveData<FeedModel> = repository.data.map(::FeedModel)
@@ -51,6 +56,8 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
     private val _photo = MutableLiveData<PhotoModel?>(null)
     val photo: LiveData<PhotoModel?>
         get() = _photo
+
+    var photoIsView:Boolean = false
 
     private val _postCreated = SingleLiveEvent<Unit>()
     val postCreated: LiveData<Unit>
@@ -81,6 +88,13 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         } catch (e: Exception) {
             _dataState.value = FeedModelState(error = true)
         }
+    }
+
+    fun getAttachment(attachment: Attachment){
+       _attachment.value = attachment
+    }
+    fun viewAttachment():Attachment{
+        return _attachment.value!!
     }
 
 
