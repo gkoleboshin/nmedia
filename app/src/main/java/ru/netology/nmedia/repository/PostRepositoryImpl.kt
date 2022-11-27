@@ -1,7 +1,6 @@
 package ru.netology.nmedia.repository
 
 
-
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -10,6 +9,8 @@ import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import ru.netology.nmedia.entity.toDto
 import ru.netology.nmedia.api.PostApi
+import ru.netology.nmedia.auth.AuthLogin
+import ru.netology.nmedia.auth.AuthState
 import ru.netology.nmedia.dao.PostDao
 import ru.netology.nmedia.dto.*
 import ru.netology.nmedia.entity.PostEntity
@@ -47,10 +48,10 @@ class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
     }
         .flowOn((Dispatchers.Default))
 
-    override suspend fun showNewer(){
-        val updatePosts = dao.getAll().map{posts->
-            posts.toDto().map {post->
-               post.copy(show = true)
+    override suspend fun showNewer() {
+        val updatePosts = dao.getAll().map { posts ->
+            posts.toDto().map { post ->
+                post.copy(show = true)
             }.toEntity()
         }
         dao.insert(updatePosts.first())
@@ -92,8 +93,9 @@ class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
     override suspend fun saveWithAttachment(post: Post, upload: MediaUpload) {
         try {
             val media = upload(upload)
-            val postWithAttachment = post.copy(attachment = Attachment(media.id, AttachmentType.IMAGE))
-            save(postWithAttachment,true)
+            val postWithAttachment =
+                post.copy(attachment = Attachment(media.id, AttachmentType.IMAGE))
+            save(postWithAttachment, true)
         } catch (e: AppError) {
             throw e
         } catch (e: IOException) {
@@ -152,18 +154,32 @@ class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
     }
 
     override suspend fun upload(upload: MediaUpload): Media {
-        try{
+        try {
             val media = MultipartBody.Part.createFormData(
-                "file",upload.file.name,upload.file.asRequestBody()
+                "file", upload.file.name, upload.file.asRequestBody()
             )
             val response = PostApi.service.upload(media)
-            if (!response.isSuccessful){
-                throw ApiError(response.code(),response.message())
+            if (!response.isSuccessful) {
+                throw ApiError(response.code(), response.message())
             }
-            return response.body() ?: throw ApiError(response.code(),response.message())
-        }catch (e:IOException){
+            return response.body() ?: throw ApiError(response.code(), response.message())
+        } catch (e: IOException) {
             throw NetworkError
-        }catch (e:Exception){
+        } catch (e: Exception) {
+            throw UnknownError
+        }
+    }
+
+    override suspend fun auth(login: AuthLogin): AuthState {
+        try {
+            val response = PostApi.service.updateUser(login.login, login.password)
+            if (!response.isSuccessful) {
+                throw ApiError(response.code(), response.message())
+            }
+            return response.body() ?: throw ApiError(response.code(), response.message())
+        } catch (e: IOException) {
+            throw NetworkError
+        } catch (e: Exception) {
             throw UnknownError
         }
     }

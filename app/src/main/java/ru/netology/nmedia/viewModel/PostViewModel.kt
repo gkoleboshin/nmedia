@@ -5,9 +5,11 @@ import android.app.Application
 import android.net.Uri
 import androidx.lifecycle.*
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.db.AppDb
 import ru.netology.nmedia.dto.Attachment
 import ru.netology.nmedia.dto.MediaUpload
@@ -18,12 +20,12 @@ import ru.netology.nmedia.model.PhotoModel
 import ru.netology.nmedia.repository.*
 import ru.netology.nmedia.util.SingleLiveEvent
 import java.io.File
-import java.io.IOException
 
 private val empty = Post(
     id = 0,
     content = "",
     author = "",
+    authorId = 0,
     authorAvatar = "netology.jpg",
     likedByMe = false,
     likes = 0,
@@ -41,13 +43,24 @@ class PostViewModel(application: Application) : AndroidViewModel(application) {
         // упрощённый вариант
     private val repository: PostRepository =
         PostRepositoryImpl(AppDb.getInstance(context = application).postDao())
-    val data: LiveData<FeedModel> = repository.data.map(::FeedModel)
-        .asLiveData(Dispatchers.Default)
+    val data: LiveData<FeedModel> = AppAuth.getInstance()
+        .authStateFlow
+        .flatMapLatest { (myId, _) ->
+            repository.data
+                .map { posts ->
+                    FeedModel(
+                        posts.map{it.copy(ownedByMe = it.authorId == myId)},
+                        posts.isEmpty()
+                    )
+                }
+        }.asLiveData(Dispatchers.Default)
+
     val newerCount: LiveData<Int> = data.switchMap {
         repository.getNewer(it.posts.firstOrNull()?.id ?: 0L)
+            .catch { e -> e.printStackTrace() }
             .asLiveData(Dispatchers.Default)
     }
-        .distinctUntilChanged()
+
     private val _dataState = MutableLiveData<FeedModelState>()
     val dataState: LiveData<FeedModelState>
         get() = _dataState

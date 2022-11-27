@@ -3,6 +3,8 @@ package ru.netology.nmedia.repository
 
 import android.net.Uri
 import kotlinx.coroutines.flow.Flow
+import ru.netology.nmedia.auth.AuthLogin
+import ru.netology.nmedia.auth.AuthState
 import ru.netology.nmedia.dto.Media
 import ru.netology.nmedia.dto.MediaUpload
 import ru.netology.nmedia.dto.Post
@@ -18,4 +20,5 @@ interface PostRepository {
     suspend fun removeById(id: Long, saveDAO: Boolean)
     suspend fun likeByIdById(post: Post, saveDAO: Boolean)
     suspend fun upload(upload:MediaUpload): Media
+    suspend fun auth(login: AuthLogin):AuthState
 }

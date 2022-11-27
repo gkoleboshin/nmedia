@@ -20,6 +20,11 @@
         <action
             android:id="@+id/action_feedFragment_to_photoFragment"
             app:destination="@id/photoFragment" />
+        <argument
+            android:name="id"
+            app:argType="long" />
+        <argument android:name="token"
+            app:argType="string" />
     </fragment>
     <fragment
         android:id="@+id/newPostFragment"
@@ -35,4 +40,8 @@
             android:id="@+id/action_photoFragment_to_feedFragment"
             app:destination="@id/feedFragment" />
     </fragment>
+    <fragment
+        android:id="@+id/signInFragment"
+        android:name="ru.netology.nmedia.activity.SignInFragment"
+        android:label="SignInFragment" />
 </navigation>
