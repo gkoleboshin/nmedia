@@ -23,8 +23,7 @@ class SignInViewModel(application: Application) : AndroidViewModel(application) 
                 val signIn = AuthLogin(login, password)
                 data.value = signIn
                _data.value = repository.auth(data.value!!)
-            } catch (e: Exception) {
-                _data.value = null
+            } catch (e: Exception){
             }
         }
     }
