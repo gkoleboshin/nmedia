@@ -1,5 +1,6 @@
 package ru.netology.nmedia.activity
 
+
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -7,10 +8,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
-import ru.netology.nmedia.R
 import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.databinding.FragmentSignInBinding
-import ru.netology.nmedia.viewmodel.PostViewModel
 import ru.netology.nmedia.viewmodel.SignInViewModel
 
 
@@ -34,7 +33,6 @@ class SignInFragment : Fragment() {
         )
         with(binding) {
             editLogin.requestFocus()
-            editPassword.requestFocus()
         }
         binding.signInButton.setOnClickListener {
             viewModel.Login(binding.editLogin.text.toString(), binding.editPassword.text.toString())
