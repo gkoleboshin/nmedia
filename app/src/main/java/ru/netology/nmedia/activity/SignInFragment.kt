@@ -37,7 +37,7 @@ class SignInFragment : Fragment() {
             editPassword.requestFocus()
         }
         binding.signInButton.setOnClickListener {
-            viewModel.Login(binding.editLogin.toString(), binding.editPassword.toString())
+            viewModel.Login(binding.editLogin.text.toString(), binding.editPassword.text.toString())
         }
         viewModel._data.observe(viewLifecycleOwner){
             if (it != null){
