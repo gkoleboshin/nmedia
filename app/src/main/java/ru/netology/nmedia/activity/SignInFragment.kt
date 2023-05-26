@@ -12,10 +12,12 @@ import dagger.hilt.android.AndroidEntryPoint
 import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.databinding.FragmentSignInBinding
 import ru.netology.nmedia.viewmodel.SignInViewModel
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class SignInFragment : Fragment() {
-
+    @Inject
+    lateinit var auth:AppAuth
     private val viewModel: SignInViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -40,7 +42,7 @@ class SignInFragment : Fragment() {
         }
         viewModel._data.observe(viewLifecycleOwner){
             if (it != null){
-                it.token?.let { it1 -> AppAuth.getInstance().setAuth(it.id, it1) }
+                it.token?.let { it1 -> auth.setAuth(it.id, it1) }
                 viewModel._data.value = null
             }
 

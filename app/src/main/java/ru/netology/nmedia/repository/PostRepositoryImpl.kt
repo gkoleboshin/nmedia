@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.*
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import ru.netology.nmedia.entity.toDto
-import ru.netology.nmedia.api.PostApi
+import ru.netology.nmedia.api.PostsApiService
 import ru.netology.nmedia.auth.AuthLogin
 import ru.netology.nmedia.auth.AuthState
 import ru.netology.nmedia.dao.PostDao
@@ -20,9 +20,13 @@ import ru.netology.nmedia.error.AppError
 import ru.netology.nmedia.error.NetworkError
 import ru.netology.nmedia.error.UnknownError
 import java.io.IOException
+import javax.inject.Inject
 
 
-class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
+class PostRepositoryImpl @Inject constructor(
+    private val dao: PostDao,
+    val service: PostsApiService
+) : PostRepository {
     override val data = dao.getAll().map(List<PostEntity>::toDto)
         .flowOn(Dispatchers.Default)
 
@@ -30,7 +34,7 @@ class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
         while (true) {
             try {
                 delay(10_000)
-                val response = PostApi.service.getNewer(id)
+                val response = service.getNewer(id)
                 if (!response.isSuccessful) {
                     throw ApiError(response.code(), response.message())
                 }
@@ -60,7 +64,7 @@ class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
 
     override suspend fun getAll() {
         try {
-            val response = PostApi.service.getAll()
+            val response = service.getAll()
             if (!response.isSuccessful) {
                 throw ApiError(response.code(), response.message())
             }
@@ -75,7 +79,7 @@ class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
 
     override suspend fun save(post: Post, saveDAO: Boolean) {
         try {
-            val response = PostApi.service.save(post)
+            val response = service.save(post)
             if (!response.isSuccessful) {
                 throw ApiError(response.code(), response.message())
             }
@@ -110,7 +114,7 @@ class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
             dao.removeById(id)
         }
         try {
-            val response = PostApi.service.removeById(id)
+            val response = service.removeById(id)
             if (!response.isSuccessful) {
                 throw ApiError(response.code(), response.message())
             }
@@ -128,7 +132,7 @@ class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
                 dao.insert(upPost.toEntity())
             }
             try {
-                val response = PostApi.service.dislikedById(post.id)
+                val response = service.dislikedById(post.id)
                 if (!response.isSuccessful) {
                     throw ApiError(response.code(), response.message())
                 }
@@ -141,7 +145,7 @@ class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
             val upPost = post.copy(likedByMe = !post.likedByMe, likes = post.likes + 1)
             dao.insert(upPost.toEntity())
             try {
-                val response = PostApi.service.likedById(post.id)
+                val response = service.likedById(post.id)
                 if (!response.isSuccessful) {
                     throw ApiError(response.code(), response.message())
                 }
@@ -158,7 +162,7 @@ class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
             val media = MultipartBody.Part.createFormData(
                 "file", upload.file.name, upload.file.asRequestBody()
             )
-            val response = PostApi.service.upload(media)
+            val response = service.upload(media)
             if (!response.isSuccessful) {
                 throw ApiError(response.code(), response.message())
             }
@@ -172,7 +176,7 @@ class PostRepositoryImpl(private val dao: PostDao) : PostRepository {
 
     override suspend fun auth(login: AuthLogin): AuthState {
         try {
-            val response = PostApi.service.updateUser(login.login, login.password)
+            val response = service.updateUser(login.login, login.password)
             if (!response.isSuccessful) {
                 throw ApiError(response.code(), response.message())
             }
